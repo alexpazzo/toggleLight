@@ -3,8 +3,8 @@ const hue = require("node-hue-api");
 const pin = 4
 
 //{"devicetype":"raspberry#cantina "}
-const username = "azGwnYlzV76mr6NbV2A2cAv7cEnkjztzomJxjlyl"
-
+const username = "azGwnYlzV76mr6NbV2A2cAv7cEnkjztzomJxjlyl";
+const room = "Cantina";
 
 // Calling export with a pin number will export that header and return a gpio header instance
 var gpio4 = gpio.export(pin, {
@@ -29,10 +29,9 @@ var gpio4 = gpio.export(pin, {
 
             gpio4.on("change", async function (val) {
                 // Switch close val = 1
-                console.log(val);
                 if (val) {
                     console.log("Switch Pressed");
-                    await toggleLight(api, "Cantina");
+                    await toggleLight(api, room);
                 }
             });
 
@@ -74,8 +73,10 @@ async function toggleLight(api, group) {
             interessedLights.push(light);
     }
 
+    //check if there are some light to Switch
     if (interessedLights.length <= 0) throw new Error("No lights to toggle");
 
+    //chech the state of all lights and reverse it
     for (let light of interessedLights) {
         let state;
         if (light.state.on)
@@ -84,7 +85,6 @@ async function toggleLight(api, group) {
             state = hue.lightState.create().on();
 
         await api.setLightState(light.id, state)
-
     }
 
 
