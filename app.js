@@ -1,6 +1,6 @@
 
 const hue = require("node-hue-api");
-const keypress = require('keypress');
+const ioHook = require('iohook');
 
 //{"devicetype":"raspberry#cantina "}
 const username = "azGwnYlzV76mr6NbV2A2cAv7cEnkjztzomJxjlyl";
@@ -12,16 +12,17 @@ const room = "Cantina";
 (async () => {
     console.log("Searching Hue Bridge");
 
-    keypress(process.stdin);
-
     const api = await searchAndConneectBridge();
-
-    process.stdin.on('keypress', async (ch, key) => {
-        if (key.name == "enter") {
+    ioHook.on('keyup', event => {
+        console.log(event);
+        if (event.keycode == 8) {
             console.log("Enter Pressed");
             await toggleLight(api, room);
         }
     });
+
+    // Register and start hook
+    ioHook.start();
 })();
 
 
