@@ -1,45 +1,28 @@
-const gpio = require("gpio");
+
 const hue = require("node-hue-api");
-const pin = 4
+const keypress = require('keypress');
 
 //{"devicetype":"raspberry#cantina "}
 const username = "azGwnYlzV76mr6NbV2A2cAv7cEnkjztzomJxjlyl";
 const room = "Cantina";
 
-// Calling export with a pin number will export that header and return a gpio header instance
-var gpio4 = gpio.export(pin, {
-    // When you export a pin, the default direction is out. This allows you to set
-    // the pin value to either LOW or HIGH (3.3V) from your program.
-    //direction: gpio.DIRECTION.OUT,
-    direction: gpio.DIRECTION.IN,
+// make `process.stdin` begin emitting "keypress" events
 
-    // set the time interval (ms) between each read when watching for value changes
-    // note: this is default to 100, setting value too low will cause high CPU usage
-    interval: 100,
 
-    // Due to the asynchronous nature of exporting a header, you may not be able to
-    // read or write to the header right away. Place your logic in this ready
-    // function to guarantee everything will get fired properly
-    ready: async function () {
-        console.log(`Exported Pin ${pin}`);
+(async () => {
+    console.log("Searching Hue Bridge");
 
-        console.log("Searching Hue Bridge");
-        try {
-            const api = await searchAndConneectBridge();
+    keypress(process.stdin);
 
-            gpio4.on("change", async function (val) {
-                // Switch close val = 1
-                if (val) {
-                    console.log("Switch Pressed");
-                    await toggleLight(api, room);
-                }
-            });
+    const api = await searchAndConneectBridge();
 
-        } catch (error) {
-            console.error(error);
+    process.stdin.on('keypress', async (ch, key) => {
+        if (key.name == "enter") {
+            console.log("Enter Pressed");
+            await toggleLight(api, room);
         }
-    }
-});
+    });
+})();
 
 
 async function searchAndConneectBridge() {
